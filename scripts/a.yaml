@@ -1,0 +1,10 @@
+- /var/log/cinder:
+    file.directory:
+      - user: root
+      - group: root
+
+- /var/lib/cinder:
+    file.directory:
+      - user: root
+      - group: root
+

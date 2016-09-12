@@ -1,0 +1,40 @@
+
+xebest-26-199-xepay-task:
+  host: 192.168.26.199   # The IP addr or DNS hostname
+  user: root      # Remote executions will be executed as user fred
+  passwd: None  # The password to use for login, if omitted, keys are used
+  port: 22
+      
+
+xebest-26-198-epay-schedule:
+  host: 192.168.26.198   # The IP addr or DNS hostname
+  user: root      # Remote executions will be executed as user fred
+  passwd: None  # The password to use for login, if omitted, keys are used
+  port: 22
+      
+192.168.26.38:host: 192.168.26.38   # The IP addr or DNS hostname
+  user: root      # Remote executions will be executed as user fred
+  passwd: None  # The password to use for login, if omitted, keys are used
+  port: 22
+      
+
+192.168.26.24:
+  host: 192.168.26.24   # The IP addr or DNS hostname
+  user: root      # Remote executions will be executed as user fred
+  passwd: None  # The password to use for login, if omitted, keys are used
+  port: 22
+      
+
+cy-26-147-solr-r:
+  host: 192.168.26.147   # The IP addr or DNS hostname
+  user: root      # Remote executions will be executed as user fred
+  passwd: None  # The password to use for login, if omitted, keys are used
+  port: 22
+      
+
+llmj-26-195-centos-:
+  host: 192.168.26.195   # The IP addr or DNS hostname
+  user: root      # Remote executions will be executed as user fred
+  passwd: None  # The password to use for login, if omitted, keys are used
+  port: 22
+      

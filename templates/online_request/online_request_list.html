@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="/static/css/animate.min.css" rel="stylesheet">
+    <link href="/static/css/style.min.css?v=4.1.0" rel="stylesheet">
+    <style type="text/css">
+        .ml10 {
+            margin-left: 10px;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+<!-- 大模态框开始 (修改上线申请单) -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="myLargeModalLabel">上线申请单</h4>
+            </div>
+            <div class="modal-body">
+                <form id="update_request_form" method="post" class="form-horizontal" action="{% url 'update_request_api' %}">
+                    <input id='online_request_status' name='online_request_status' type='hidden' value='0'>
+                    <input id='request_item_id' name='request_item_id' type='hidden'>
+                    {% csrf_token %}
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">开发人员</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="developer" name="developer" class="form-control" multiple="" readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group request-time-part">
+                        <label class="col-sm-2 control-label">申请日期</label>
+
+                        <div class="col-sm-10">
+                            <input id="request_time" readonly="readonly" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed  request-time-part"></div>
+                    <div class="form-group require-side-part">
+                        <label class="col-sm-2 control-label">需求方</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="require_side" name="require_side" class="form-control" multiple=""
+                                    readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed require-side-part"></div>
+                    <div class="form-group ">
+                        <label class="col-sm-2 control-label">功能类型</label>
+
+                        <div class="col-sm-10" id="function_type">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">测试结果</label>
+
+                        <div class="col-sm-10">
+                            <input id="test_result_tag" type="text" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed  create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">版本标识</label>
+
+                        <div class="col-sm-10">
+                            <input id="version_tag" name="version_tag" type="text" class="form-control"
+                                   readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed  create-request-hidden-tag"></div>
+                    <div class="form-group online-function-part">
+                        <label class="col-sm-2 control-label">上线项目功能</label>
+
+                        <div class="col-sm-10">
+                            <textarea id="online_function" name="online_function"
+                                      style='resize: none;overflow-y:auto;height: 300px; '
+                                      class="form-control input-lg m-b" readonly="readonly"></textarea>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed online-function-part"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">上线项目</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="app" name="app" class="form-control" multiple=""  readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group suggest-online-part">
+                        <label class="col-sm-2 control-label">建议上线时间</label>
+
+                        <div class="col-sm-10">
+                            <input id="suggest_update_time" name="suggest_update_time" readonly="readonly"
+                                   class="form-control layer-date" placeholder="YYYY-MM-DD hh:mm:ss"
+                                   onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                            <label class="laydate-icon"></label>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed suggest-online-part"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">上线文件</label>
+
+                        <div class="col-sm-10">
+                            <textarea id="online_files" name="online_files"
+                                      style='resize: none;overflow-y:auto;height: 300px; '
+                                      class="form-control input-lg m-b" readonly="readonly"></textarea>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">是否需要如下操作</label>
+
+                        <div class="col-sm-10">
+                            <label class="checkbox-inline">
+                                <input readonly="readonly" type="checkbox" value="option1" id="inlineCheckbox1">重启缓存</label>
+                            <label class="checkbox-inline">
+                                <input readonly="readonly" type="checkbox" value="option2" id="inlineCheckbox2">定时任务</label>
+                        </div>
+                    </div>
+
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">产品经理签字(功能确认)</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="product_manager_confirm_before_online" class="form-control" multiple=""
+                                    readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">开发确认(功能确认)</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="developer_fun_confirm_before_online" name="developer_fun_confirm_before_online"
+                                    class="form-control" multiple="" readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">测试签字</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="test_confirm_before_online" name="test_confirm_before_online"
+                                    class="form-control" multiple="" readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">技术经理签字(功能确认)</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="technical_man_fun_confirm_online" class="form-control" multiple=""
+                                    readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">白盒审核签字</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select class="form-control" multiple="" readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">运维人员签字</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="maintenance_persion_comfirm" class="form-control" multiple=""
+                                    readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">运维主管签字</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="maintenance_manager_comfirm" class="form-control" multiple=""
+                                    readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">功能测试签字(线上确认)</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="test_confirm_after_online" name="test_confirm_after_online" class="form-control"
+                                    multiple="" readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">测试经理签字(线上确认)</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="test_man_confirm_after_online" name="test_man_confirm_after_online"
+                                    class="form-control" multiple="" readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">产品经理签字(线上确认)</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="product_man_confirm_after_online" class="form-control" multiple=""
+                                    readonly="readonly">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">上线等级</label>
+
+                        <div class="col-sm-10">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value="option1" id="inlineCheckbox1"
+                                       readonly="readonly">A</label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value="option2" id="inlineCheckbox2"
+                                       readonly="readonly">B</label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value="option2" id="inlineCheckbox2"
+                                       readonly="readonly">C</label></div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">是否单台验证上线</label>
+
+                        <div class="col-sm-10">
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value="option1" id="inlineCheckbox1"
+                                       readonly="readonly">A</label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value="option2" id="inlineCheckbox2"
+                                       readonly="readonly">B</label>
+                            <label class="checkbox-inline">
+                                <input type="checkbox" value="option2" id="inlineCheckbox2"
+                                       readonly="readonly">C</label></div>
+                    </div>
+                    <div class="hr-line-dashed create-request-hidden-tag"></div>
+                    <div class="form-group create-request-hidden-tag">
+                        <label class="col-sm-2 control-label">是否单台验证上线</label>
+
+                        <div class="radio">
+                            <label>
+                                <input type="radio" value="option2" id="optionsRadios2" name="optionsRadios"
+                                       readonly="readonly">是</label>
+                            <label>
+                                <input type="radio" value="option2" id="optionsRadios2" name="optionsRadios"
+                                       readonly="readonly">否</label>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-2">
+                            <button id="request-confirm-button" class="btn btn-primary" type="submit">提交下一步</button>
+
+                            <button data-dismiss="modal" class="btn btn-white" type="button">取消</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 大模态框结束 -->
+
+
+<div class="modal fade create-request-item" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="myLargeModalLabel">创建上线申请单</h4>
+            </div>
+            <div class="modal-body">
+                <form id="create_request_form" method="post" class="form-horizontal" action="{% url 'update_request_api' %}">
+                    <input id='online_request_status' name='online_request_status' type='hidden' value='0'>
+                    {% csrf_token %}
+                    <div class="form-group request-time-part">
+                        <label class="col-sm-2 control-label">申请日期</label>
+
+                        <div class="col-sm-10">
+                            <input id="request_time_create" readonly="readonly" type="text" class="form-control"
+                                   value="提交时自动生成">
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed  request-time-part"></div>
+                    <div class="form-group require-side-part">
+                        <label class="col-sm-2 control-label">需求方</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="require_side_create" name="require_side_create" class="form-control" multiple=""
+                                    required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed  request-time-part"></div>
+                    <div class="form-group require-side-part">
+                        <label class="col-sm-2 control-label">分配开发人员</label>
+
+                        <div class="col-sm-4 m-l-n">
+                            <select id="assign_developer_leader" name="assign_developer_leader" class="form-control"
+                                    required>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed require-side-part"></div>
+                    <div class="form-group online-function-part">
+                        <label class="col-sm-2 control-label">上线项目功能</label>
+
+                        <div class="col-sm-10">
+                            <textarea id="online_function" name="online_function" required
+                                      style='resize: none;overflow-y:auto;height: 250px; '
+                                      class="form-control input-lg m-b"></textarea>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed online-function-part"></div>
+                    <div class="form-group suggest-online-part">
+                        <label class="col-sm-2 control-label">建议上线时间</label>
+
+                        <div class="col-sm-10">
+                            <input id="suggest_update_time" name="suggest_update_time" class="form-control layer-date"
+                                   placeholder="YYYY-MM-DD hh:mm:ss"
+                                   onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" required>
+                            <label class="laydate-icon"></label>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed suggest-online-part"></div>
+                    </br>
+                    </br>
+                    </br>
+                    </br>
+
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-2">
+                            <button id="request-confirm-button" class="btn btn-primary" type="submit">创建</button>
+
+                            <button data-dismiss="modal" class="btn btn-white" type="button">取消</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>上线单</h5>
+
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="#">选项1</a>
+                    </li>
+                    <li><a href="#">选项2</a>
+                    </li>
+                </ul>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            {% ifequal  request.user.group.group_name  "product_manager" %}
+                <button type="button" class="btn btn-primary btn-xs" data-toggle="modal"
+                        data-target=".create-request-item" onclick="create_request()">新建上线申请单
+                </button>
+                </br>
+                </br>
+                </br>
+
+            {% endifequal %}
+            <table id="request_list_table" class="table table-striped table-bordered table-hover dataTables-example">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>上线功能</th>
+                    <th>被分配的组</th>
+                    <th>开发人员</th>
+                    <th>需求方</th>
+                    <th>项目名</th>
+                    <th>提交时间</th>
+                    <th>建议上线时间</th>
+                    <th>代码上线时间</th>
+                    <th>申请目前状态</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for l in request_list %}
+                    <tr 
+                    {% ifequal request.user.group.group_name 'technical_manager' %}
+                        {% ifequal l.online_request_status 3 %}
+                            style="background-color: #00b7ee"
+                        {% endifequal %}
+                    {% endifequal %}
+
+                    {% ifequal request.user.group.group_name 'testing' %}
+                        {% ifequal l.online_request_status 2 %}
+                            style="background-color: #00b7ee"
+                        {% endifequal %}
+                    {% endifequal %}
+
+                    {% ifequal request.user.group.group_name 'testing' %}
+                        {% ifequal l.online_request_status 6 %}
+                            style="background-color: #00b7ee"
+                        {% endifequal %}
+                    {% endifequal %}
+
+                    {% ifequal request.user.group.group_name 'maintenance' %}
+                        {% if request.user.admin_tag  %}
+                            {% ifequal l.online_request_status 5 %}
+                                style="background-color: #00b7ee"
+                            {% endifequal %}
+                        {% else %}
+                            {% ifequal l.online_request_status 4 %}
+                                style="background-color: #00b7ee"
+                            {% endifequal %}
+                        {% endif %}
+                    {% endifequal %}
+
+                    {% ifequal request.user.group.group_name 'product_manager' %}
+                        {% ifequal l.online_request_status 7 %}
+                            style="background-color: #00b7ee"
+                        {% endifequal %}
+                    {% endifequal %}
+
+                    {% ifequal request.user.group.group_name 'developer_group' %}
+                        {% ifequal l.online_request_status 1 %}
+                            {% ifequal l.assign_developer_leader.id request.user.id %}
+                                style="background-color: #00b7ee"
+                            {% endifequal %}
+                        {% endifequal %}
+                    {% endifequal %}
+
+                    >
+
+
+                        <td style="">{{ l.id }}</td>
+                        {% if l.online_function|length <= 30 %}
+                             <td style="">{{ l.online_function }}</td>
+                        {% else %}
+                             <td style="">{{ l.online_function | slice:"30"}}...</td>
+                        {% endif %}
+                        <td>{{ l.assign_developer_leader.alias }}</td>
+                        <td style="">
+                            {% for d in l.developer.select_related.all %}
+                                {{ d.alias }}
+                            {% endfor %}
+                        </td>
+                        <td style="">
+                            {% for d in l.require_side.select_related.all %}
+                                {{ d.alias }}
+                            {% endfor %}
+                        </td>
+                        <td style="">
+                            {% for d in l.app.select_related.all %}
+                                {{ d.app_name }}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {{ l.request_time | date:'Y-m-d H:i:s' }}
+                        </td>
+                        <td>
+                            {{ l.suggest_update_time | date:'Y-m-d H:i:s' }}
+                        </td>
+                        <td>
+                            {{ l.update_code_time | date:'Y-m-d H:i:s' }}
+                        </td>
+                        <td style="">
+                            {{ l.get_online_request_status_display }}
+                        </td>
+                        <td>
+
+                            <button type="button" class="btn btn-primary btn-xs" data-toggle="modal"
+                                    data-target=".bs-example-modal-lg" onclick="request_item_edit(this,false)">编辑
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <!-- End Panel Basic -->
+
+    <!-- Panel Style -->
+    <!-- End Panel Style -->
+
+    <!-- Panel Sort & Hideheader -->
+    <!-- End Panel Sort & Hideheader -->
+
+    <!-- Panel Columns & Select -->
+    <!-- End Panel Columns & Select -->
+
+    <!-- Panel Other -->
+    <!-- End Panel Other -->
+</div>
+<script src="/static/js/jquery.min.js?v=2.1.4"></script>
+<script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="/static/js/content.min.js?v=1.0.0"></script>
+<script src="/static/js/plugins/layer/laydate/laydate.js"></script>
+<script src="/static/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="/static/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+<script src="/static/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+
+
+<script src="/static/js/plugins/jeditable/jquery.jeditable.js"></script>
+<script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+<script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+<script src="/static/js/content.min.js?v=1.0.0"></script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#request_list_table').DataTable({
+            "order": [[0, "desc"]]
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    function refresh_current_page(){
+        window.location.reload();
+    };
+    ref_page = setInterval(refresh_current_page, 30000);
+
+    $(document).ready(function () {
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+        });
+
+
+
+
+    }); // end document
+
+    $('#exampleTableFromData').bootstrapTable({});
+</script>
+<script type="text/javascript">
+
+
+    function create_request() {
+        clearInterval(ref_page);
+        $.post(
+                "{% url 'get_reqest_list_json_api' %}",
+                {id: ''},
+                function (callback) {
+                    html = '';
+                    $.each(callback.data.require_side.all_product_manager, function (k, v) {
+                        html += "<option value='" + k + "'>" + v + "</option>"
+                    });
+                    $('#require_side_create').html(html);
+                    console.log(callback.data)
+
+                    html = '';
+                    html += "<option ></option>"
+                    $.each(callback.data.assign_developer_leader, function (k, v) {
+                        html += "<option value='" + k + "'>" + v + "</option>"
+                    });
+                    $('#assign_developer_leader').html(html);
+                },
+                'json'
+        );
+
+    }
+    ;
+
+
+    function request_item_edit(args, display_type) {
+        clearInterval(ref_page);
+        var current_user_group = "{{ request.user.group.group_name }}";
+        var current_user_admin_tag = "{{ request.user.admin_tag }}";
+        ;
+        if (current_user_admin_tag == 'False') {
+            current_user_admin_tag = false;
+        } else if (current_user_admin_tag == 'True') {
+            current_user_admin_tag = true;
+        }
+        var id = $(args).parent().parent().find('td').html().trim();
+        $("#request_item_id").val(id);
+        $.post(
+                "{% url 'get_reqest_list_json_api' %}",
+                {id: id},
+                function (callback) {
+                    console.log(callback);
+                    if (callback.status == true) {
+
+                        $('#online_request_status').val(callback.data.online_request_status);
+                        //修改开发人员
+                        $('#developer').empty();
+                        var html = '';
+                        if (current_user_group == 'product_manager') {
+                            $.each(callback.data.developer.selected, function (k, v) {
+                                html += "<option  value='" + k + "'>" + v + "</option>"
+                            });
+
+                            $('#developer').attr("readonly", true);
+
+                        } else if (
+                                current_user_group == 'developer_group'
+                                && callback.data.online_request_status == 1
+                                && callback.data.assign_developer_leader == {{ request.user.id }}
+                        ) {
+                            $.each(callback.data.developer.all, function (k, v) {
+                                html += "<option value='" + k + "'>" + v + "</option>"
+                            });
+                            $('#developer').removeAttr("readonly");
+                            $('#developer').attr("required", true);
+
+                        } else {
+                            $.each(callback.data.developer.selected, function (k, v) {
+                                html += "<option value='" + k + "'>" + v + "</option>"
+                            });
+
+                        }
+                        ;
+
+                        $('#developer').html(html);
+
+                        //修改申请时间
+                        $('#request_time').val('');
+                        $('#request_time').val(callback.data.request_time);
+                        //修改需求方
+                        var html = '';
+                        if (current_user_group == 'product_manager') {
+                            console.log('require side');
+                            $.each(callback.data.require_side.selected_product_manager, function (k, v) {
+                                html += "<option readonly='readonly' value='" + k + "'>" + v + "</option>"
+                            });
+                        } else if (current_user_group == 'developer_group' && callback.data.online_request_status == 1) {
+                            $.each(callback.data.require_side.all_product_manager, function (k, v) {
+                                html += "<option readonly='readonly' value='" + k + "'>" + v + "</option>"
+                            });
+                        }
+                        else {
+                            $.each(callback.data.require_side.selected_product_manager, function (k, v) {
+                                html += "<option readonly='readonly' value='" + k + "'>" + v + "</option>"
+                            });
+                        }
+                        ;
+
+                        $('#require_side').html(html);
+                        $('#require_side').prop('readonly') == 'readonly';
+
+                        //修改功能类型
+                        var html = '';
+                        if (current_user_group == 'product_manager') {
+                            $.each(callback.data.function_type.all, function (k, v) {
+                                if (callback.data.function_type.selected == k) {
+                                    html += '<label class="checkbox-inline"><input name="function_type"  checked="checked" type="checkbox" value="' + k + '" >' + v + '</label>';
+                                } else {
+                                    html += '<label class="checkbox-inline"><input name="function_type"  type="checkbox" value="' + k + '" >' + v + '</label>';
+                                }
+                                ;
+                            });
+                        } else {
+                            $.each(callback.data.function_type.all, function (k, v) {
+                                if (callback.data.function_type.selected == k) {
+                                    html += '<label class="checkbox-inline"><input name="function_type"  checked="checked" type="checkbox" value="' + k + '" >' + v + '</label>';
+                                } else {
+                                    html += '<label class="checkbox-inline"><input name="function_type"  type="checkbox" value="' + k + '" >' + v + '</label>';
+                                }
+                                ;
+                            });
+                        }
+                        ;
+                        $('#function_type').html(html);
+                        if (display_type != true) {
+                            $.each($('#function_type').find("input"), function () {
+                                $(this).attr("readonly", true);
+                            });
+                        }
+
+                        //测试结果
+                        if (callback.data.test_result_tag == true) {
+                            $('#test_result_tag').val('PASS');
+                        } else {
+                            $('#test_result_tag').val('FAILED');
+                        }
+                        ;
+                        $('#test_result_tag').attr("readonly", true);
+
+
+                        //版本标识
+                        $('#version_tag').attr("readonly", true);
+
+                        if (current_user_group == 'developer_group' && callback.data.online_request_status == 1) {
+                            $('#version_tag').removeAttr("readonly");
+                            $('#version_tag').attr("required", true);
+                        }
+                        ;
+
+                        if (callback.data.version_tag != false) {
+                            $('#version_tag').val(callback.data.version_tag);
+                        }
+                        ;
+                        //开发经理上线前确认
+                        if (callback.data.developer_fun_confirm_before_online != false) {
+                            {#                        $('#developer_fun_confirm_before_online').val(callback.data.developer_fun_confirm_before_online);#}
+                            $('#developer_fun_confirm_before_online').html('<option>' + callback.data.developer_fun_confirm_before_online + '</option>');
+                        }
+                        ;
+                        //上线功能
+
+                        if (callback.data.online_function != false) {
+                            $('#online_function').val(callback.data.online_function);
+                        }
+                        ;
+                        $('#online_function').attr("readonly", true);
+
+
+                        //上线项目
+                        {#                        $('#app').prop('disabled') == 'disabled';#}
+                        $('#app').attr("readonly", true);
+                        var html = '';
+                        if (current_user_group == 'product_manager') {
+                            $.each(callback.data.app.selected, function (k, v) {
+                                html += "<option  value='" + k + "'>" + v + "</option>"
+                            });
+                        } else if (current_user_group == 'developer_group' && callback.data.online_request_status == 1) {
+                            $.each(callback.data.app.all, function (k, v) {
+                                html += "<option value='" + k + "'>" + v + "</option>"
+                            });
+                            $('#app').removeAttr('readonly');
+                            var options = $('#app').find('option');
+                            $.each(options, function () {
+                                $(this).removeAttr("readonly");
+                            });
+                        } else {
+                            $.each(callback.data.app.selected, function (k, v) {
+                                html += "<option  value='" + k + "'>" + v + "</option>"
+                            });
+                        }
+
+
+                        $('#app').html(html);
+                        //建议上线时间suggest_update_time
+                        $('#suggest_update_time').removeAttr("onclick");
+                        $('#suggest_update_time').val('');
+                        if (callback.data.suggest_update_time != false) {
+                            $('#suggest_update_time').val(callback.data.suggest_update_time);
+                        }
+                        ;
+
+                        //上线文件
+                        $('#online_files').empty();
+                        if (current_user_group == 'developer_group' && callback.data.online_request_status == 1) {
+                            $('#online_files').removeAttr("readonly");
+                            $('#online_files').attr("required", true);
+                        }
+                        ;
+                        if (callback.data.online_files != false) {
+                            $('#online_files').val(callback.data.online_files);
+                        }
+                        ;
+                        //产品上线前确认
+                        $('#product_manager_confirm_before_online').empty();
+                        var html = '';
+                        if (current_user_group == 'product_manager') {
+                            console.log('require side');
+                            $.each(callback.data.require_side.selected_product_manager, function (k, v) {
+                                html += "<option readonly='readonly' value='" + k + "'>" + v + "</option>"
+                            });
+                        } else {
+                            $.each(callback.data.require_side.selected_product_manager, function (k, v) {
+                                html += "<option readonly='readonly' value='" + k + "'>" + v + "</option>"
+                            });
+                        }
+                        ;
+
+
+                        $('#product_manager_confirm_before_online').append(html);
+                        //上线前测试确认
+                        var html = '';
+                        if (current_user_group == 'testing' && callback.data.online_request_status == 2) {
+                            $.each(callback.data.test_confirm_before_online.all, function (k, v) {
+                                html += "<option value='" + k + "'>" + v + "</option>"
+                            });
+                            $('#test_confirm_before_online').removeAttr("readonly");
+                            $('#test_confirm_before_online').attr("required", true);
+                        } else {
+                            $.each(callback.data.test_confirm_before_online.selected, function (k, v) {
+                                html += "<option readonly='readonly' value='" + k + "'>" + v + "</option>"
+                            });
+                        }
+                        ;
+
+                        $('#test_confirm_before_online').html(html);
+                        //技术经理确认
+                        if (callback.data.technical_man_fun_confirm_online != false) {
+                            $('#technical_man_fun_confirm_online').html('<option>' + callback.data.technical_man_fun_confirm_online + '</option>');
+                        }
+                        ;
+
+                        //运维人员确认
+                        if (callback.data.maintenance_persion_comfirm != false) {
+                            $('#maintenance_persion_comfirm').html('<option>' + callback.data.maintenance_persion_comfirm + '</option>');
+                        }
+                        ;
+
+
+                        //运维经理确认
+                        if (callback.data.maintenance_manager_comfirm != false) {
+                            $('#maintenance_manager_comfirm').html('<option>' + callback.data.maintenance_manager_comfirm + '</option>');
+                        }
+                        ;
+
+                        //产品经理上线后确认
+                        if (current_user_group == 'product_manager' && callback.data.online_request_status == 7) {
+
+                        } else {
+                            if (callback.data.product_man_confirm_after_online != false) {
+                                $('#product_man_confirm_after_online').html('<option>' + callback.data.product_man_confirm_after_online + '</option>');
+                            }
+                            ;
+                        }
+                        ;
+
+                        //上线后测试确认
+                        var html = '';
+                        if (current_user_group == 'testing' && callback.data.online_request_status == 6 && current_user_admin_tag) {
+                            $.each(callback.data.test_confirm_after_online.all, function (k, v) {
+                                html += "<option value='" + k + "'>" + v + "</option>"
+                            });
+                            $('#test_confirm_after_online').removeAttr("readonly");
+                            $('#test_confirm_after_online').attr("required", true);
+                        } else {
+
+
+                            if (callback.data.test_man_confirm_after_online != false) {
+                                $('#test_man_confirm_after_online').html('<option>' + callback.data.test_man_confirm_after_online + '</option>');
+                            }
+                            ;
+
+
+
+                            $.each(callback.data.test_confirm_after_online.selected, function (k, v) {
+                                html += "<option  value='" + k + "'>" + v + "</option>"
+                            });
+{#                            $('#test_man_confirm_after_online').html("<option>" + callback.data.test_man_confirm_after_online + "</option>");#}
+                        }
+                        ;
+                        $('#test_confirm_after_online').html(html);
+
+
+                        $('#request-confirm-button').attr("disabled", true);
+                        console.log(current_user_group);
+                        console.log(current_user_admin_tag);
+                        console.log(typeof(current_user_admin_tag))
+                        $('#online_request_status').val(callback.data.online_request_status);
+                        if (
+                                current_user_group == 'developer_group'
+                                && callback.data.online_request_status == 1
+                                && callback.data.assign_developer_leader == {{ request.user.id }}
+                        ) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        } else if (current_user_group == 'developer_group' && callback.data.online_request_status != 1) {
+                            $('#request-confirm-button').html('提交下一步');
+                        } else if (current_user_group == 'testing' && callback.data.online_request_status == 2 && current_user_admin_tag) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        } else if (current_user_group == 'technical_manager' && callback.data.online_request_status == 3) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        } else if (current_user_group == 'maintenance' && callback.data.online_request_status == 4 && !current_user_admin_tag) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        } else if (current_user_group == 'maintenance' && callback.data.online_request_status == 5 && current_user_admin_tag) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        } else if (current_user_group == 'testing' && callback.data.online_request_status == 6 && current_user_admin_tag) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        } else if (current_user_group == 'product_manager' && callback.data.online_request_status == 7) {
+                            $('#request-confirm-button').html('提交下一步');
+                            $('#request-confirm-button').removeAttr("disabled");
+                        }
+                        ;
+
+                    } else if (callback.status == false) { // 如果获取数据失败
+                        alert("获取条目数据失败,请重新刷新页面,如重复些错误请联系管理员!");
+                    }
+                    ; //判断获取结果结束
+                },
+                "json"
+        ); // end post        }
+    }
+    ;
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+    {% include "include/commoncss.html" %}
+    {#    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>#}
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/prettify.js"></script>
+    <script src="/static/js/jquery.bootstrap-duallistbox.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all">
+    {#    <link href="//cdn.virtuosoft.eu/virtuosoft.eu/resources/site.css?v4" rel="stylesheet" type="text/css" media="all">#}
+    <link href="/static/css/prettify.min.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/static/css/bootstrap-duallistbox.css" rel="stylesheet" type="text/css" media="all">
+        <link href="/static/css/style.min.css?v=4.1.0" rel="stylesheet">
+
+
+</head>
+
+<body class="gray-bg">
+<div id="background" class="modal-backdrop fade in" style="display: none">
+    <img src="/static/img/wait.jpg" style=" position: fixed; left: 50%;top: 50%;margin: -50px 0 0 -50px;">
+</div>
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>软件部署</h5>
+                </div>
+                <div class="ibox-content">
+                    <form id="deploy_software_form" name="deploy_software_form">
+                    <h5>主机列表</h5>
+                        <select class="form-control" id="server_list" size="10" name="server_list" multiple>
+                            {% for s in server_list %}
+                                <option value="{{ s.id }}">{{ s.server_name }}</option>
+                            {% endfor %}
+                        </select>
+                    <h5>软件列表</h5>
+                    <select class="form-control" id="software_list" size="10" name="software_list" multiple>
+                        {% for s in software_list %}
+                            <option value="{{ s.id }}">{{ s.software_name }}</option>
+                        {% endfor %}
+                    </select>
+                        </form>
+                     <script>
+
+                         $('select[name="server_list"]').bootstrapDualListbox();
+                         $('select[name="software_list"]').bootstrapDualListbox();
+                    </script>
+                    </br>
+                    <button type="button" class="btn btn-primary btn-block deploy_button">Deploy</button>
+
+
+                    </br>
+                    <h6>输出结果</h6>
+                        <pre id="resutl_contain" class="p-m">
+
+                        </pre>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+{% include "include/commonjs.html" %}
+<script>
+    $('.deploy_button').click(function () {
+        $("#resutl_contain").html('');
+        var server_list = new Array();
+        $("#server_list").find("option:selected").each(function () {
+            server_list.push($(this).val());
+        });
+        var software_list = new Array();
+        $("#software_list").find("option:selected").each(function () {
+            software_list.push($(this).val());
+        });
+        $("#background").css('display', 'block');
+        if (server_list.length == 0 || software_list.length == 0) {
+            {#                     $("#background").css('display','none');#}
+            swal("服务器或软件列表不能为空", "", "error");
+            $("#background").css('display', 'none');
+            return
+        }
+        swal({
+            title: "您确定要部署这些软件吗",
+            text: "部署后将无法恢复，请谨慎操作！",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "部署",
+            closeOnConfirm: true,
+            closeOnCancel: false
+        }, function (isConfirm) {
+              if (isConfirm) {
+                     var html = '';
+{#                    $.post("/software_deploy/", {"server_list": server_list, 'software_list': software_list}, function (data) {#}
+                    $.post("{% url 'deploy_software' %}", $('#deploy_software_form').serialize(), function (data) {
+                            var result = $.parseJSON(data)
+                            if (result.status == true) {
+                                $.each(result.result, function (k, v) {
+                          //       v =  {'status': True, 'hostname': u'192.168.26.24', u'192.168.26.24': {u'service_}
+                                    if (v.status == true ) {
+
+                                        console.log(v[v.hostname]);
+                                            html += '<h1>' + v.hostname + '</h1></br>'  // key值
+                                            $.each(v[v.hostname], function (m, n) {
+                                                html += n.name + '</br>'
+                                                if (n.result == true) {
+                                                    html += '<span class="badge badge-primary" style="background-color: green">successfull</span>'
+                                                } else {
+                                                    html += '<span class="badge badge-danger" style="background-color: red">failed</span>'
+                                                };
+                                                html += '<h4>' + m + '</h4></br>'  // key值
+                                            });
+                                    } else {
+                                        //       v =  {'status': True, 'hostname': u'192.168.26.24', u'192.168.26.24': {u'service_}
+                                          html += '<h1>' + v.hostname + '</h1></br>'  // key值
+                                          html += '<span class="badge badge-danger" style="background-color: red">deploy failed</span>'
+                                    }
+                                });
+                                console.log('append html')
+                                $("#resutl_contain").append(html);
+                                {#                      });#}
+                                swal("部署完成！", "", "success");
+                                $("#background").css('display', 'none');
+                            } else if (result.status == false) {
+                                html += '<h4>' + result.msg + '</h4></br>'  // key值
+                                $("#resutl_contain").append(html);
+                                $("#background").css('display', 'none');
+                            }
+
+                        });
+                } else {
+                    console.log('cancel')
+                     swal("已取消", "", "error")
+                    $("#background").css('display', 'none');
+                }
+            });
+        });
+</script>
+
+</body>
+
+</html>

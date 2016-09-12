@@ -1,0 +1,71 @@
+{% load my_tag %}
+<!DOCTYPE html>
+<!-- saved from url=(0055)file:///C:/Users/zhaobin022/Desktop/H+v4.1.0/login.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>鲜易发版流程系统 - 登录</title>
+
+    <link rel="shortcut icon" href="">
+    <link href="/static/login_files/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/login_files/font-awesome.min.css" rel="stylesheet">
+
+    <link href="/static/login_files/animate.min.css" rel="stylesheet">
+    <link href="/static/login_files/style.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">易</h1>
+
+            </div>
+{#            <h3>E</h3>#}
+
+            <form class="m-t" role="form" action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+
+                <div class="form-group">
+{#                    <input name="username" type="email" class="form-control" placeholder="用户名" required="">#}
+                    {{ form.username }}
+                    {% if errors.username %}
+                        </br>
+                        <div class="alert alert-danger" role="alert">{% error_msg errors.username %}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+{#                    <input password="static" type="password" class="form-control" placeholder="密码" required="">#}
+                    {{ form.password }}
+                    {% if errors.password %}
+                        </br>
+                    <div class="alert alert-danger" role="alert">  {% error_msg errors.password %}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary block full-width m-b">登 录</button>
+                {% if errors.login %}
+                    <div class="alert alert-danger" role="alert"> {% error_msg errors.login %}</div>
+                {% endif %}
+
+                <p class="text-muted text-center">
+{#                    <a href="file:///C:/Users/zhaobin022/Desktop/H+v4.1.0/login.html#"><small>忘记密码了？</small></a> | <a href="file:///C:/Users/zhaobin022/Desktop/H+v4.1.0/register.html">注册一个新账号</a>#}
+                </p>
+
+            </form>
+        </div>
+    </div>
+    <script src="/static/login_files/jquery.min.js"></script>
+    <script src="/static/login_files/bootstrap.min.js"></script>
+
+
+
+</body></html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/jsTree/style.min.css" rel="stylesheet">
+    <link href="/static/css/animate.min.css" rel="stylesheet">
+    <link href="/static/css/style.min.css?v=4.1.0" rel="stylesheet">
+
+    <style type="text/css">
+        .user_active {
+            background-color: #00b7ee;
+        }
+        .display {
+            display: block;
+        }
+        .hiden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="ibox chat-view">
+
+                    <div class="ibox-title">
+                        <small class="pull-right text-muted">最新消息：2015-02-02 18:39:23</small><div id="current_user" user_id="" user_alias=""></div>
+                    </div>
+
+
+                    <div class="ibox-content">
+
+                        <div class="row">
+
+                            <div class="col-md-9 ">
+                                <div class="chat-discussion">
+                                </div>
+
+                            </div>
+                            <div class="col-md-3">
+                                <div class="chat-users">
+                                    <div class="users-list">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="chat-message-form">
+                                    <div class="form-group">
+                                        <textarea class="form-control message-input" name="message" placeholder="输入消息内容，按回车键发送" readonly="readonly"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="/static/js/content.min.js?v=1.0.0"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $.getJSON( "{% url  'get_contact_list' %}", function(contact_list){
+                var html = '';
+                $(contact_list).each(function(k,user){
+                    html += '<div class="chat-user" onclick="change_title(this)" user_id="'+user.id+'" user_alias="'+user.alias+'"> <img class="chat-avatar" src="/static/img/'+user.header_image+'" alt=""><div class="chat-user-name"> <a href="#" >'+user.alias+'</a><span class="badge hiden" display=style="float:right">0</span></div> </div>';
+                });
+                $('.users-list').html(html);
+            });
+            GLOBAL_MSG_BOX = {};
+            get_msg();
+        });
+
+        function send_msg(msg_dic){
+            $.post("{% url  'send_msg' %}",{data:JSON.stringify(msg_dic)},function(result){
+                console.log(result);
+            });
+        };
+
+        function gen_msg_box(header_image,alias,time_tag,msg) {
+            var html = '<div class="chat-message"><img class="message-avatar" src="/static/img/'+header_image+'" alt=""><div class="message"><a class="message-author" href="#">  '+alias+'</a><span class="message-date">  '+time_tag+' </span> <span class="message-content">'+msg+' </span> </div> </div>'
+            return html;
+        };
+
+        function get_msg(){
+            $.getJSON( "{% url 'get_msg' %}", function(data){
+                if (data.length != 0){
+                    console.log(data);
+                    var current_user_id = $("#current_user").attr("user_id");
+                    if (current_user_id == null || current_user_id == undefined || current_user_id == '') {
+                        $.each( data, function(index, content) {
+                            content = $.parseJSON(content);
+                            var from = content.from
+                            from = from.toString();
+                            var user_span = $(".chat-user[user_id='"+from+"'] span");
+                            var msg_count = parseInt($(user_span).text());
+                            msg_count += 1;
+                            $(user_span).text(msg_count);
+                            $(user_span).removeClass("hiden");
+                            if (!GLOBAL_MSG_BOX.hasOwnProperty(from)){
+                                GLOBAL_MSG_BOX[from] = new Array();
+                            };
+                            var html = gen_msg_box(content.header_image,content.alias,content.time_tag,content.msg)
+                            GLOBAL_MSG_BOX[from].push(html);
+                        });
+                    } else {
+                        $.each( data, function(index, content) {
+                            content = $.parseJSON(content);
+                            var from = content.from;
+                            from = from.toString();
+                            if (current_user_id==from) {
+                                var html = gen_msg_box(content.header_image,content.alias,content.time_tag,content.msg)
+                                $('.chat-discussion').append(html);
+                                $('.chat-discussion').animate({
+                                    scrollTop: $('.chat-discussion')[0].scrollHeight}, 500);
+                            } else {
+                                var user_span = $(".chat-user[user_id='"+from+"'] span");
+                                var msg_count = parseInt($(user_span).text());
+                                msg_count += 1;
+                                $(user_span).text(msg_count);
+                                $(user_span).removeClass("hiden");
+                                if (GLOBAL_MSG_BOX.hasOwnProperty(from)){
+                                    var html = gen_msg_box(content.header_image,content.alias,content.time_tag,content.msg)
+                                    GLOBAL_MSG_BOX[from].push(html);
+                                } else {
+                                    GLOBAL_MSG_BOX[from] = new Array();
+                                };
+                            };
+                        });
+                    };
+                };
+                get_msg();
+            });
+        }
+
+        $("body").delegate("textarea", "keydown",function(e){
+            if(e.which == 13) {//Enter key down
+                //send msg button clicked
+                var msg_text = $("textarea").val();
+                if ($.trim(msg_text).length > 0){
+                    var current_user_id = $("#current_user").attr("user_id");
+                    var msg_dic = {
+                        "to" :current_user_id,
+                        "msg":$.trim(msg_text)
+                    };
+                    send_msg(msg_dic);
+                    var current_time = gen_date_str();
+                    var html = gen_msg_box("{{ request.user.header_image }}","{{ request.user.alias }}",current_time,msg_text);
+                    $('.chat-discussion').append(html);
+                    $('.chat-discussion').animate({
+                        scrollTop: $('.chat-discussion')[0].scrollHeight}, 500);
+                }
+                $("textarea").val('');
+            }
+        });
+        
+        function change_title(arg){
+            $(arg).addClass("user_active");
+            $(".message-input").removeAttr("readonly");
+            var all_siblings = $(arg).siblings();
+            $(all_siblings).each(function(){
+                $(this).removeClass("user_active");
+            });
+
+            var current_user_id = $("#current_user").attr("user_id");
+            if (!GLOBAL_MSG_BOX.hasOwnProperty(current_user_id)) {
+                GLOBAL_MSG_BOX[current_user_id] = new Array();
+            };
+            var html = $('.chat-discussion').html();
+            console.log(html);
+            if (html.length != 0) {
+                GLOBAL_MSG_BOX[current_user_id].push(html);
+            };
+            $('.chat-discussion').html("");
+            var user_id = $(arg).attr("user_id");
+            var user_span = $(".chat-user[user_id='"+user_id+"'] span");
+            $(user_span).text("0");
+            $(user_span).addClass("hiden");
+            $('#current_user').attr("user_id",user_id);
+            $('#current_user').text("I am talking to "+$(arg).attr("user_alias"));
+
+            if (GLOBAL_MSG_BOX.hasOwnProperty(user_id)) {
+                var msg_list = GLOBAL_MSG_BOX[user_id];
+                $.each( msg_list, function(index, content) {
+                    $('.chat-discussion').append(content);
+                    $('.chat-discussion').animate({
+                        scrollTop: $('.chat-discussion')[0].scrollHeight}, 500);
+                });
+            };
+            GLOBAL_MSG_BOX[user_id] = new Array();
+        };
+
+        function gen_date_str(){
+            var now = new Date();
+            var year = now.getFullYear(); // 2015, 年份
+            var month = now.getMonth(); // 5, 月份，注意月份范围是0~11，5表示六月
+            var date = now.getDate(); // 24, 表示24号
+            var hour = now.getHours(); // 19, 24小时制
+            var minute = now.getMinutes(); // 49, 分钟
+            var second = now.getSeconds(); // 22, 秒
+            return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second
+        }
+    </script>
+</body>
+
+</html>

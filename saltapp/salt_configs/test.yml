@@ -1,0 +1,31 @@
+apache:
+  #pkg.installed: []
+  #service.running:
+  #  - reload: True
+  #  - watch:
+  #    - file: /etc/httpd/conf/httpd.conf
+  user.present:
+    - uid: 87
+    #- username: alex
+    - gid: 87
+    - home: /var/www/html
+    - shell: /bin/nologin
+    - require:
+      - group: apache
+      - file: /etc/apache2/apache2.conf
+  group.present:
+    - gid: 87
+    - require:
+      - pkg: apache2
+/etc/apache2/apache2.conf:
+  file.managed:
+    - source: salt://apache2.conf
+    - user: root
+    - group: root
+    - mode: 644
+    - require:
+      - user: apache
+apache2:
+  pkg.installed:
+    - pkgs:
+      - apache2

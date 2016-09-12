@@ -1,0 +1,242 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    {#		<script type="text/javascript" src="http://cdn.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>#}
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+
+    <style type="text/css">
+        ${demo.css}
+    </style>
+    <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+
+
+</head>
+<body>
+
+   <div class="row  border-bottom white-bg dashboard-header">
+        <div class="col-sm-12">
+            <h1 align="center">{{ server.server_name }}</h1>
+            </br>
+        </div>
+
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                            {% for s in service_list %}
+                                <div class="row" style="margin-left: 10px;">
+                                <button class="btn btn-primary btn-xs" time-range="latest" onclick="getdata(this)" service-name="{{ s.name }}">1day</button>
+                                <button class="btn btn-primary btn-xs" time-range="10mins" onclick="getdata(this)" service-name="{{ s.name }}">4day</button>
+                                <button class="btn btn-primary btn-xs" time-range="30mins" onclick="getdata(this)" service-name="{{ s.name }}">14day</button>
+                                <button class="btn btn-primary btn-xs" time-range="60mins" onclick="getdata(this)" service-name="{{ s.name }}">25day</button>
+                                </div>
+                                <div id="{{ s.name }}" style="height: 400px; min-width: 310px"></div>
+                            {% endfor %}
+                    </div>
+                    <div class="ibox-content">
+                        <div class="echarts" id="echarts-line-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+
+
+
+<script src="/static/js/highstock.js"></script>
+<script src="/static/js/exporting.js"></script>
+<script type="text/javascript">
+
+    $(function () {
+
+        /**
+         * Create the chart when all data is loaded
+         * @returns {undefined}
+         */
+        function loadChart(service_name,seriesOptions) {
+            Highcharts.setOptions({global: {useUTC: false}});
+            $('#'+service_name).highcharts('StockChart', {
+                chart: {
+                  renderTo: 'container',
+                  type: 'spline',
+                  marginRight: 10,
+                  events: {
+                    load: function() {
+                       var series = this.series;
+
+                       setInterval(function() {
+
+                          $.getJSON("http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&data_type=get_item_list&service_name="+service_name, function (data) {
+                                var item_list = data;
+                                item_list.shift();
+                                $.each(item_list, function (i, name) {
+                                    $.getJSON('http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&time_range=latest&data_type=get_latest_point&service_name='+service_name+'&item_name='+name, function (data) {
+                                        var row = data.pop();
+                                        var x = row[0];
+                                        var y = row[1];
+                                        if   (typeof (series[i])   !=   "undefined") {
+                                            series[i].addPoint([x, y], true, true);
+                                        };
+                                    });
+                                });
+
+                        });
+                       }, 1000*2);
+                    }
+                  }
+                },
+                title: {
+                    text: service_name+'(latest)'  //指定图表标题
+                },
+                legend: {
+                    enabled: true,
+                    layout: 'horizontal'
+                },
+                rangeSelector: {
+                    selected: 4
+                },
+                tooltip: {
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2
+                },
+                rangeSelector: {
+                },
+                series: seriesOptions
+            });
+        };
+    {% for s in service_list %}
+
+        $.getJSON('http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&data_type=get_item_list&service_name={{ s.name }}', function (data) {
+            var item_list = data;
+            item_list.shift();
+            var {{ s.name }}seriesCounterlatest = 0;
+            var {{ s.name }}seriesOptionslatest = [];
+            $.each(item_list, function (i, name) {
+                $.getJSON('http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&time_range=latest&data_type=single_item_data&service_name={{ s.name }}&item_name='+name, function (data) {
+                    {{ s.name }}seriesOptionslatest[i] = {
+                        name: name,
+                        data: data
+                    };
+                    {{ s.name }}seriesCounterlatest += 1;
+                    if ({{ s.name }}seriesCounterlatest == item_list.length) {
+                        loadChart('{{ s.name }}',{{ s.name }}seriesOptionslatest);
+                    }
+                });
+
+            });
+        });
+        {% endfor %}
+    });
+</script>
+
+<script>
+    function createChart(service_name,seriesOptions,date_range) {
+        Highcharts.setOptions({global: {useUTC: false}});
+
+        if (date_range == 'latest') {
+            $('#'+service_name).highcharts('StockChart', {
+                chart: {
+                  renderTo: 'container',
+                  type: 'spline',
+                  marginRight: 10,
+                  events: {
+                    load: function() {
+                       var series = this.series;
+
+                       setInterval(function() {
+
+                          $.getJSON("http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&data_type=get_item_list&service_name="+service_name, function (data) {
+                                var item_list = data;
+                                item_list.shift();
+                                $.each(item_list, function (i, name) {
+                                    $.getJSON('http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&time_range=latest&data_type=single_item_data&service_name='+service_name+'&item_name='+name, function (data) {
+                                        var row = data.pop();
+                                        var x = row[0];
+                                        var y = row[1];
+                                        if   (typeof (series[i])   !=   "undefined") {
+                                            series[i].addPoint([x, y], true, true);
+                                        };
+                                    });
+                                });
+
+                        });
+                       }, 1000*2);
+                    }
+                  }
+                },
+                title: {
+                    text: service_name+'('+date_range+')'  //指定图表标题
+                },
+                legend: {
+                    enabled: true,
+                    layout: 'horizontal'
+                },
+                rangeSelector: {
+                    selected: 4
+                },
+                tooltip: {
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2
+                },
+                rangeSelector: {
+                },
+                series: seriesOptions
+            });
+        } else {
+            $('#'+service_name).highcharts('StockChart', {
+                title: {
+                    text: service_name+'('+date_range+')'  //指定图表标题
+                },
+                legend: {
+                    enabled: true,
+                    layout: 'horizontal'
+                },
+                rangeSelector: {
+                    selected: 4
+                },
+                tooltip: {
+                    pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+                    valueDecimals: 2
+                },
+                rangeSelector: {
+                },
+                series: seriesOptions
+            });
+        };
+
+    };
+    function  getdata(arg) {
+        var time_range = $(arg).attr('time-range');
+        var service_name = $(arg).attr('service-name');
+        $.getJSON('http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&data_type=get_item_list&service_name='+service_name, function (data) {
+            var item_list = data;
+            item_list.shift();
+            var seriesCounterlatest = 0;
+            var seriesOptionslatest = [];
+            $.each(item_list, function (i, name) {
+                $.getJSON('http://account.xegood.com:8080/monitor/get_latest?client_id={{ server.id }}&time_range='+time_range+'&data_type=single_item_data&service_name='+service_name+'&item_name='+name, function (data) {
+                    seriesOptionslatest[i] = {
+                        name: name,
+                        data: data
+                    };
+                    seriesCounterlatest += 1;
+                    if (seriesCounterlatest == item_list.length) {
+                        createChart(service_name,seriesOptionslatest,time_range);
+                    };
+                });
+            });
+        });
+    };
+</script>
+</body>
+</html>
